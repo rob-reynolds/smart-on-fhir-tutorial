@@ -189,18 +189,37 @@ function submitQuestionnaire(patientId) {
   });
 
   console.log("Questionnaire Response:", questionnaireResponse);
+
+  // Submit the QuestionnaireResponse to the FHIR endpoint
+  fetch('https://interop.salessbx.smiledigitalhealth.com/fhir-request/', {
+      method: 'POST',
+      headers: {
+          'Content-Type': 'application/fhir+json'
+      },
+      body: JSON.stringify(questionnaireResponse)
+  })
+  .then(response => {
+      if (response.ok) {
+          console.log('QuestionnaireResponse successfully submitted');
+      } else {
+          console.error('Failed to submit QuestionnaireResponse:', response.statusText);
+      }
+  })
+  .catch(error => {
+      console.error('Error submitting QuestionnaireResponse:', error);
+  });
 }
 
 function onReady(smart) {
   if (smart.hasOwnProperty('patient')) {
       var patient = smart.patient;
-      patient.read().then(function(pt) {
+      patient.read().done(function(pt) {
           console.log("Patient ID:", pt.id);
           createQuestionnaireForm(questionnaire);
           document.getElementById("submit-button").onclick = function() {
               submitQuestionnaire(pt.id);
           };
-      }).catch(function(error) {
+      }).fail(function(error) {
           console.error("Failed to read patient data:", error);
       });
   } else {
