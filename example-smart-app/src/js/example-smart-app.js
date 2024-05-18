@@ -122,6 +122,7 @@ const questionnaire = {
 };
 
 function createQuestionnaireForm(questionnaire) {
+  console.log('Creating form...');
   const form = document.getElementById('questionnaire-form');
 
   questionnaire.item.forEach(item => {
@@ -152,6 +153,7 @@ function createQuestionnaireForm(questionnaire) {
 }
 
 function submitQuestionnaire() {
+  console.log('Submitting form...');
   const form = document.getElementById('questionnaire-form');
   const formData = new FormData(form);
 
@@ -177,5 +179,6 @@ function submitQuestionnaire() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+  console.log('Document loaded');
   createQuestionnaireForm(questionnaire);
 });
