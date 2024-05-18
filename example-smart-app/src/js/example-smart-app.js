@@ -70,7 +70,7 @@ function submitQuestionnaire(patientId, questionnaire) {
   console.log("Questionnaire Response:", questionnaireResponse);
 
   // Submit the QuestionnaireResponse to the FHIR endpoint
-  fetch('https://interop.salessbx.smiledigitalhealth.com/fhir-request/', {
+  fetch('https://interop.salessbx.smiledigitalhealth.com/fhir-request/QuestionnaireResponse', {
       method: 'POST',
       headers: {
           'Content-Type': 'application/fhir+json'
