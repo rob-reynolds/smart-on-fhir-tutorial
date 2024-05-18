@@ -1,131 +1,181 @@
-(function(window){
-  window.extractData = function() {
-    var ret = $.Deferred();
+// example-smart-app.js
 
-    function onError() {
-      console.log('Loading error', arguments);
-      ret.reject();
-    }
-
-    function onReady(smart)  {
-      if (smart.hasOwnProperty('patient')) {
-        var patient = smart.patient;
-        var pt = patient.read();
-        var obv = smart.patient.api.fetchAll({
-                    type: 'Observation',
-                    query: {
-                      code: {
-                        $or: ['http://loinc.org|8302-2', 'http://loinc.org|8462-4',
-                              'http://loinc.org|8480-6', 'http://loinc.org|2085-9',
-                              'http://loinc.org|2089-1', 'http://loinc.org|55284-4']
-                      }
-                    }
-                  });
-
-        $.when(pt, obv).fail(onError);
-
-        $.when(pt, obv).done(function(patient, obv) {
-          var byCodes = smart.byCodes(obv, 'code');
-          var gender = patient.gender;
-
-          var fname = '';
-          var lname = '';
-
-          if (typeof patient.name[0] !== 'undefined') {
-            fname = patient.name[0].given.join(' ');
-            //lname = patient.name[0].family.join(' ');
-          }
-
-          var height = byCodes('8302-2');
-          var systolicbp = getBloodPressureValue(byCodes('55284-4'),'8480-6');
-          var diastolicbp = getBloodPressureValue(byCodes('55284-4'),'8462-4');
-          var hdl = byCodes('2085-9');
-          var ldl = byCodes('2089-1');
-
-          var p = defaultPatient();
-          p.birthdate = patient.birthDate;
-          p.gender = gender;
-          p.fname = fname;
-          p.lname = lname;
-          p.height = getQuantityValueAndUnit(height[0]);
-
-          if (typeof systolicbp != 'undefined')  {
-            p.systolicbp = systolicbp;
-          }
-
-          if (typeof diastolicbp != 'undefined') {
-            p.diastolicbp = diastolicbp;
-          }
-
-          p.hdl = getQuantityValueAndUnit(hdl[0]);
-          p.ldl = getQuantityValueAndUnit(ldl[0]);
-
-          ret.resolve(p);
-        });
-      } else {
-        onError();
+const questionnaire = {
+  "resourceType": "Questionnaire",
+  "id": "311M",
+  "meta": {
+      "versionId": "4",
+      "lastUpdated": "2024-05-10T15:35:59.356+00:00",
+      "source": "#6kpooEBakwv4dTIe",
+      "profile": [
+          "http://hl7.org/fhir/4.0/StructureDefinition/Questionnaire"
+      ],
+      "tag": [
+          { "code": "lformsVersion: 29.0.0" },
+          { "code": "lformsVersion: 34.0.2" },
+          { "code": "lformsVersion: 34.3.1" }
+      ]
+  },
+  "title": "Columbia - suicide severity rating scale screener - recent [C-SSRS]",
+  "status": "draft",
+  "copyright": "© 2011 Dr. Kelly Posner, first author of the scale. Used with permission",
+  "code": [
+      {
+          "system": "http://loinc.org",
+          "code": "93373-9",
+          "display": "Columbia - suicide severity rating scale screener - recent [C-SSRS]"
       }
-    }
+  ],
+  "item": [
+      {
+          "linkId": "/93246-7",
+          "text": "Have you wished you were dead or wished you could go to sleep and not wake up?",
+          "type": "choice",
+          "answerOption": [
+              { "valueCoding": { "code": "LA33-6", "display": "Yes" } },
+              { "valueCoding": { "code": "LA32-8", "display": "No" } }
+          ]
+      },
+      {
+          "linkId": "/93247-5",
+          "text": "Have you actually had any thoughts of killing yourself?",
+          "type": "choice",
+          "answerOption": [
+              { "valueCoding": { "code": "LA33-6", "display": "Yes" } },
+              { "valueCoding": { "code": "LA32-8", "display": "No" } }
+          ]
+      },
+      {
+          "linkId": "/93248-3",
+          "text": "Have you been thinking about how you might do this?",
+          "type": "choice",
+          "enableWhen": [
+              {
+                  "question": "/93247-5",
+                  "operator": "=",
+                  "answerCoding": { "code": "LA33-6", "display": "Yes" }
+              }
+          ],
+          "answerOption": [
+              { "valueCoding": { "code": "LA33-6", "display": "Yes" } },
+              { "valueCoding": { "code": "LA32-8", "display": "No" } }
+          ]
+      },
+      {
+          "linkId": "/93249-1",
+          "text": "Have you had these thoughts and had some intention of acting on them?",
+          "type": "choice",
+          "enableWhen": [
+              {
+                  "question": "/93247-5",
+                  "operator": "=",
+                  "answerCoding": { "code": "LA33-6", "display": "Yes" }
+              }
+          ],
+          "answerOption": [
+              { "valueCoding": { "code": "LA33-6", "display": "Yes" } },
+              { "valueCoding": { "code": "LA32-8", "display": "No" } }
+          ]
+      },
+      {
+          "linkId": "/93250-9",
+          "text": "Have you started to work out or worked out the details of how to kill yourself? Do you intend to carry out this plan?",
+          "type": "choice",
+          "enableWhen": [
+              {
+                  "question": "/93247-5",
+                  "operator": "=",
+                  "answerCoding": { "code": "LA33-6", "display": "Yes" }
+              }
+          ],
+          "answerOption": [
+              { "valueCoding": { "code": "LA33-6", "display": "Yes" } },
+              { "valueCoding": { "code": "LA32-8", "display": "No" } }
+          ]
+      },
+      {
+          "linkId": "/93267-3",
+          "text": "Have you ever done anything, started to do anything, or prepared to do anything to end your life?",
+          "type": "choice",
+          "answerOption": [
+              { "valueCoding": { "code": "LA33-6", "display": "Yes" } },
+              { "valueCoding": { "code": "LA32-8", "display": "No" } }
+          ]
+      },
+      {
+          "linkId": "/93269-9",
+          "text": "Was this within the past 3 months?",
+          "type": "choice",
+          "enableWhen": [
+              {
+                  "question": "/93267-3",
+                  "operator": "=",
+                  "answerCoding": { "code": "LA33-6", "display": "Yes" }
+              }
+          ],
+          "answerOption": [
+              { "valueCoding": { "code": "LA33-6", "display": "Yes" } },
+              { "valueCoding": { "code": "LA32-8", "display": "No" } }
+          ]
+      }
+  ]
+};
 
-    FHIR.oauth2.ready(onReady, onError);
-    return ret.promise();
+function createQuestionnaireForm(questionnaire) {
+  const form = document.getElementById('questionnaire-form');
 
-  };
+  questionnaire.item.forEach(item => {
+      const questionDiv = document.createElement('div');
+      questionDiv.className = 'question-item';
 
-  function defaultPatient(){
-    return {
-      fname: {value: ''},
-      lname: {value: ''},
-      gender: {value: ''},
-      birthdate: {value: ''},
-      height: {value: ''},
-      systolicbp: {value: ''},
-      diastolicbp: {value: ''},
-      ldl: {value: ''},
-      hdl: {value: ''},
-    };
-  }
+      const questionLabel = document.createElement('label');
+      questionLabel.htmlFor = item.linkId;
+      questionLabel.textContent = item.text;
+      questionDiv.appendChild(questionLabel);
 
-  function getBloodPressureValue(BPObservations, typeOfPressure) {
-    var formattedBPObservations = [];
-    BPObservations.forEach(function(observation){
-      var BP = observation.component.find(function(component){
-        return component.code.coding.find(function(coding) {
-          return coding.code == typeOfPressure;
-        });
+      const select = document.createElement('select');
+      select.id = item.linkId;
+      select.name = item.linkId;
+      item.answerOption.forEach(option => {
+          const opt = document.createElement('option');
+          opt.value = option.valueCoding.code;
+          opt.textContent = option.valueCoding.display;
+          select.appendChild(opt);
       });
-      if (BP) {
-        observation.valueQuantity = BP.valueQuantity;
-        formattedBPObservations.push(observation);
-      }
-    });
 
-    return getQuantityValueAndUnit(formattedBPObservations[0]);
-  }
+      questionDiv.appendChild(select);
+      form.appendChild(questionDiv);
+  });
 
-  function getQuantityValueAndUnit(ob) {
-    if (typeof ob != 'undefined' &&
-        typeof ob.valueQuantity != 'undefined' &&
-        typeof ob.valueQuantity.value != 'undefined' &&
-        typeof ob.valueQuantity.unit != 'undefined') {
-          return ob.valueQuantity.value + ' ' + ob.valueQuantity.unit;
-    } else {
-      return undefined;
-    }
-  }
+  console.log('Questionnaire form created');
+  document.getElementById('loading').style.display = 'none';
+}
 
-  window.drawVisualization = function(p) {
-    $('#holder').show();
-    $('#loading').hide();
-    $('#fname').html(p.fname);
-    $('#lname').html(p.lname);
-    $('#gender').html(p.gender);
-    $('#birthdate').html(p.birthdate);
-    $('#height').html(p.height);
-    $('#systolicbp').html(p.systolicbp);
-    $('#diastolicbp').html(p.diastolicbp);
-    $('#ldl').html(p.ldl);
-    $('#hdl').html(p.hdl);
+function submitQuestionnaire() {
+  const form = document.getElementById('questionnaire-form');
+  const formData = new FormData(form);
+
+  let questionnaireResponse = {
+      resourceType: "QuestionnaireResponse",
+      questionnaire: `Questionnaire/${questionnaire.id}`,
+      status: "completed",
+      item: []
   };
 
-})(window);
+  formData.forEach((value, key) => {
+      questionnaireResponse.item.push({
+          linkId: key,
+          answer: [{
+              valueCoding: {
+                  code: value
+              }
+          }]
+      });
+  });
+
+  console.log('Questionnaire Response:', questionnaireResponse);
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  createQuestionnaireForm(questionnaire);
+});
