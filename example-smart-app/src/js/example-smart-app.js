@@ -153,13 +153,25 @@ function createQuestionnaireForm(questionnaire) {
   console.log("Form HTML:", form.innerHTML); // Debugging log to inspect form HTML
 }
 
-function submitQuestionnaire() {
+function submitQuestionnaire(patientId) {
   console.log("Submitting form...");
   const form = document.getElementById("questionnaire-form");
   const formData = new FormData(form);
 
   let questionnaireResponse = {
       resourceType: "QuestionnaireResponse",
+      id: "312M-r",
+      basedOn: [
+          {
+              reference: "ServiceRequest/312M"
+          }
+      ],
+      subject: {
+          reference: `Patient/${patientId}`
+      },
+      encounter: {
+          reference: "Encounter/304M"
+      },
       questionnaire: `Questionnaire/${questionnaire.id}`,
       status: "completed",
       item: []
@@ -176,10 +188,24 @@ function submitQuestionnaire() {
       });
   });
 
-  console.log('Questionnaire Response:', questionnaireResponse);
+  console.log("Questionnaire Response:", questionnaireResponse);
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-  console.log("Document loaded");
-  createQuestionnaireForm(questionnaire);
-});
+function onReady(smart) {
+  if (smart.hasOwnProperty('patient')) {
+      var patient = smart.patient;
+      patient.read().then(function(pt) {
+          console.log("Patient ID:", pt.id);
+          createQuestionnaireForm(questionnaire);
+          document.getElementById("submit-button").onclick = function() {
+              submitQuestionnaire(pt.id);
+          };
+      }).catch(function(error) {
+          console.error("Failed to read patient data:", error);
+      });
+  } else {
+      console.error("SMART FHIR client does not have patient context.");
+  }
+}
+
+FHIR.oauth2.ready(onReady);
