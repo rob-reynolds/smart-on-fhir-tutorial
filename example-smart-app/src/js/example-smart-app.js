@@ -1,6 +1,6 @@
 // example-smart-app.js
 
-const defaultQuestionnaire = {
+const questionnaire = {
   "resourceType": "Questionnaire",
   "id": "311M",
   "meta": {
@@ -153,7 +153,7 @@ function createQuestionnaireForm(questionnaire) {
   console.log("Form HTML:", form.innerHTML); // Debugging log to inspect form HTML
 }
 
-function submitQuestionnaire(patientId, questionnaire) {
+function submitQuestionnaire(patientId) {
   console.log("Submitting form...");
   const form = document.getElementById("questionnaire-form");
   const formData = new FormData(form);
@@ -221,38 +221,14 @@ function submitQuestionnaire(patientId, questionnaire) {
 function onReady(smart) {
   if (smart.hasOwnProperty('patient')) {
       var patient = smart.patient;
-      var patientPromise = patient.read();
-      var questionnairePromise = smart.api.read({type: 'Questionnaire', id: '311M'});
-
-      $.when(patientPromise, questionnairePromise).done(function(patientData, questionnaireData) {
-          var patient = patientData[0];
-          var questionnaire = questionnaireData[0];
-
-          console.log("Patient ID:", patient.id);
-          console.log("Questionnaire:", questionnaire);
-
+      patient.read().done(function(pt) {
+          console.log("Patient ID:", pt.id);
           createQuestionnaireForm(questionnaire);
           document.getElementById("submit-button").onclick = function() {
-              submitQuestionnaire(patient.id, questionnaire);
+              submitQuestionnaire(pt.id);
           };
-      }).fail(function(patientError, questionnaireError) {
-          if (patientError) {
-              console.error("Failed to read patient data:", patientError);
-          }
-          if (questionnaireError) {
-              console.error("Failed to read questionnaire data:", questionnaireError);
-          }
-
-          if (patientError) {
-              console.error("Cannot proceed without patient data.");
-              return;
-          }
-
-          var questionnaire = questionnaireError ? defaultQuestionnaire : questionnaireData[0];
-          createQuestionnaireForm(questionnaire);
-          document.getElementById("submit-button").onclick = function() {
-              submitQuestionnaire(patientData[0].id, questionnaire);
-          };
+      }).fail(function(error) {
+          console.error("Failed to read patient data:", error);
       });
   } else {
       console.error("SMART FHIR client does not have patient context.");
