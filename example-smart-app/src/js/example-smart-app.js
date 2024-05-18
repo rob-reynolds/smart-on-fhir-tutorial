@@ -243,17 +243,16 @@ function onReady(smart) {
               console.error("Failed to read questionnaire data:", questionnaireError);
           }
 
-          var patient = patientError ? null : patientData[0];
-          var questionnaire = questionnaireError ? defaultQuestionnaire : questionnaireData[0];
-
-          if (patient) {
-              createQuestionnaireForm(questionnaire);
-              document.getElementById("submit-button").onclick = function() {
-                  submitQuestionnaire(patient.id, questionnaire);
-              };
-          } else {
+          if (patientError) {
               console.error("Cannot proceed without patient data.");
+              return;
           }
+
+          var questionnaire = questionnaireError ? defaultQuestionnaire : questionnaireData[0];
+          createQuestionnaireForm(questionnaire);
+          document.getElementById("submit-button").onclick = function() {
+              submitQuestionnaire(patientData[0].id, questionnaire);
+          };
       });
   } else {
       console.error("SMART FHIR client does not have patient context.");
