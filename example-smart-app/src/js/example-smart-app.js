@@ -192,7 +192,7 @@ function submitQuestionnaire(patientId) {
 
   // Submit the QuestionnaireResponse to the FHIR endpoint
   fetch('https://interop.salessbx.smiledigitalhealth.com/fhir-request/QuestionnaireResponse', {
-      method: 'PUT',
+      method: 'POST',
       headers: {
           'Content-Type': 'application/fhir+json'
       },
