@@ -137,6 +137,12 @@ function createQuestionnaireForm(questionnaire) {
       const select = document.createElement("select");
       select.id = item.linkId;
       select.name = item.linkId;
+      const defaultOption = document.createElement("option");
+      defaultOption.value = "";
+      defaultOption.textContent = "Select an option";
+      defaultOption.selected = true;
+      defaultOption.disabled = true;
+      select.appendChild(defaultOption);
       item.answerOption.forEach(option => {
           const opt = document.createElement("option");
           opt.value = option.valueCoding.code;
