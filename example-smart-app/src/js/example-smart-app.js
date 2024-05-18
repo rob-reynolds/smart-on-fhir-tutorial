@@ -122,23 +122,23 @@ const questionnaire = {
 };
 
 function createQuestionnaireForm(questionnaire) {
-  console.log('Creating form...');
-  const form = document.getElementById('questionnaire-form');
+  console.log("Creating form...");
+  const form = document.getElementById("questionnaire-form");
 
   questionnaire.item.forEach(item => {
-      const questionDiv = document.createElement('div');
-      questionDiv.className = 'question-item';
+      const questionDiv = document.createElement("div");
+      questionDiv.className = "question-item";
 
-      const questionLabel = document.createElement('label');
+      const questionLabel = document.createElement("label");
       questionLabel.htmlFor = item.linkId;
       questionLabel.textContent = item.text;
       questionDiv.appendChild(questionLabel);
 
-      const select = document.createElement('select');
+      const select = document.createElement("select");
       select.id = item.linkId;
       select.name = item.linkId;
       item.answerOption.forEach(option => {
-          const opt = document.createElement('option');
+          const opt = document.createElement("option");
           opt.value = option.valueCoding.code;
           opt.textContent = option.valueCoding.display;
           select.appendChild(opt);
@@ -148,13 +148,13 @@ function createQuestionnaireForm(questionnaire) {
       form.appendChild(questionDiv);
   });
 
-  console.log('Questionnaire form created');
-  document.getElementById('loading').style.display = 'none';
+  console.log("Questionnaire form created");
+  document.getElementById("loading").style.display = "none";
 }
 
 function submitQuestionnaire() {
-  console.log('Submitting form...');
-  const form = document.getElementById('questionnaire-form');
+  console.log("Submitting form...");
+  const form = document.getElementById("questionnaire-form");
   const formData = new FormData(form);
 
   let questionnaireResponse = {
@@ -178,7 +178,7 @@ function submitQuestionnaire() {
   console.log('Questionnaire Response:', questionnaireResponse);
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-  console.log('Document loaded');
+document.addEventListener("DOMContentLoaded", () => {
+  console.log("Document loaded");
   createQuestionnaireForm(questionnaire);
 });
