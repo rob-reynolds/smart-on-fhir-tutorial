@@ -78,13 +78,21 @@ function submitQuestionnaire(patientId, questionnaire) {
       body: JSON.stringify(questionnaireResponse)
   })
   .then(response => {
+      const feedbackDiv = document.getElementById('feedback');
       if (response.ok) {
+          feedbackDiv.textContent = 'QuestionnaireResponse successfully submitted';
+          feedbackDiv.style.color = 'green';
           console.log('QuestionnaireResponse successfully submitted');
       } else {
+          feedbackDiv.textContent = `Failed to submit QuestionnaireResponse: ${response.statusText}`;
+          feedbackDiv.style.color = 'red';
           console.error('Failed to submit QuestionnaireResponse:', response.statusText);
       }
   })
   .catch(error => {
+      const feedbackDiv = document.getElementById('feedback');
+      feedbackDiv.textContent = `Error submitting QuestionnaireResponse: ${error}`;
+      feedbackDiv.style.color = 'red';
       console.error('Error submitting QuestionnaireResponse:', error);
   });
 }
