@@ -241,10 +241,18 @@ function onReady(smart) {
           }
           if (questionnaireError) {
               console.error("Failed to read questionnaire data:", questionnaireError);
-              createQuestionnaireForm(defaultQuestionnaire);
+          }
+
+          var patient = patientError ? null : patientData[0];
+          var questionnaire = questionnaireError ? defaultQuestionnaire : questionnaireData[0];
+
+          if (patient) {
+              createQuestionnaireForm(questionnaire);
               document.getElementById("submit-button").onclick = function() {
-                  submitQuestionnaire(patient.id, defaultQuestionnaire);
+                  submitQuestionnaire(patient.id, questionnaire);
               };
+          } else {
+              console.error("Cannot proceed without patient data.");
           }
       });
   } else {
