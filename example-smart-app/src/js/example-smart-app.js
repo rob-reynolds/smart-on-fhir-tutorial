@@ -150,6 +150,7 @@ function createQuestionnaireForm(questionnaire) {
 
   console.log("Questionnaire form created");
   document.getElementById("loading").style.display = "none";
+  console.log("Form HTML:", form.innerHTML); // Debugging log to inspect form HTML
 }
 
 function submitQuestionnaire() {

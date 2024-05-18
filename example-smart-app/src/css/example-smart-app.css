@@ -1,9 +1,21 @@
 /* example-smart-app.css */
 
+.spinner {
+  display: none; /* Hide the spinner once the form is loaded */
+}
+
 .question-item {
   margin-bottom: 20px;
 }
 
-.spinner {
-  display: none; /* Hide the spinner once the form is loaded */
+label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+select {
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 10px;
 }
